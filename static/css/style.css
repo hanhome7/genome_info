@@ -32,6 +32,37 @@ header p {
   color: #6b7280;
 }
 
+.feature-description {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 0 auto 1.5rem;
+  max-width: 720px;
+  text-align: left;
+}
+
+.feature-description p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 480px) {
+  .feature-description {
+    padding: 0.875rem 1rem;
+  }
+
+  .feature-description p {
+    font-size: 0.85rem;
+  }
+
+  .hide-sp {
+    display: none;
+  }
+}
+
 .search-box {
   display: flex;
   gap: 0.5rem;
