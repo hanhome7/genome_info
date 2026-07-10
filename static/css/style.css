@@ -116,10 +116,18 @@ header p {
   margin-bottom: 0.5rem;
 }
 
-#chromosome-svg {
-  max-width: 100%;
+.diagrams {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+#chromosome-svg,
+#karyotype-svg {
+  width: 100%;
   height: auto;
-  max-height: 500px;
+  max-height: 420px;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   background: #fafafa;

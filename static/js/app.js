@@ -48,6 +48,28 @@ function getChromosomeLength(chr) {
   return CHROMOSOME_LENGTHS[key] || null;
 }
 
+function drawChromosomePath(cx, top, height, width) {
+  const halfW = width / 2;
+  const cy = top + height / 2;
+  const bottom = top + height;
+
+  return `
+    M ${cx - halfW + 6} ${top}
+    Q ${cx - halfW} ${top} ${cx - halfW} ${top + 6}
+    L ${cx - halfW} ${cy - 10}
+    Q ${cx - halfW + 4} ${cy} ${cx - halfW + 6} ${cy + 3}
+    L ${cx - halfW + 6} ${bottom - 6}
+    Q ${cx - halfW} ${bottom} ${cx - halfW + 6} ${bottom}
+    L ${cx + halfW - 6} ${bottom}
+    Q ${cx + halfW} ${bottom} ${cx + halfW} ${bottom - 6}
+    L ${cx + halfW - 6} ${cy + 3}
+    Q ${cx + halfW - 4} ${cy} ${cx + halfW} ${cy - 10}
+    L ${cx + halfW} ${top + 6}
+    Q ${cx + halfW} ${top} ${cx + halfW - 6} ${top}
+    Z
+  `;
+}
+
 function drawChromosome(chr, start, end, geneSymbol) {
   const svgGroup = document.getElementById("chromosome-group");
   svgGroup.innerHTML = "";
@@ -65,26 +87,10 @@ function drawChromosome(chr, start, end, geneSymbol) {
   const cy = diagramTop + diagramHeight / 2;
   const halfW = chromosomeWidth / 2;
 
-  // Chromosome body: rounded rectangle with pinched centromere
-  const d = `
-    M ${diagramCenterX - halfW + 10} ${diagramTop}
-    Q ${diagramCenterX - halfW} ${diagramTop} ${diagramCenterX - halfW} ${diagramTop + 10}
-    L ${diagramCenterX - halfW} ${cy - 15}
-    Q ${diagramCenterX - halfW + 6} ${cy} ${diagramCenterX - halfW + 10} ${cy + 5}
-    L ${diagramCenterX - halfW + 10} ${diagramTop + diagramHeight - 10}
-    Q ${diagramCenterX - halfW} ${diagramTop + diagramHeight} ${diagramCenterX - halfW + 10} ${diagramTop + diagramHeight}
-    L ${diagramCenterX + halfW - 10} ${diagramTop + diagramHeight}
-    Q ${diagramCenterX + halfW} ${diagramTop + diagramHeight} ${diagramCenterX + halfW} ${diagramTop + diagramHeight - 10}
-    L ${diagramCenterX + halfW - 10} ${cy + 5}
-    Q ${diagramCenterX + halfW - 6} ${cy} ${diagramCenterX + halfW} ${cy - 15}
-    L ${diagramCenterX + halfW} ${diagramTop + 10}
-    Q ${diagramCenterX + halfW} ${diagramTop} ${diagramCenterX + halfW - 10} ${diagramTop}
-    Z
-  `;
-
+  // Chromosome body
   const body = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  body.setAttribute("d", d);
-  body.setAttribute("fill", "url(#chromosomeGradient)");
+  body.setAttribute("d", drawChromosomePath(diagramCenterX, diagramTop, diagramHeight, chromosomeWidth));
+  body.setAttribute("fill", "url(#chromosomeGradientDetail)");
   body.setAttribute("stroke", "#2563eb");
   body.setAttribute("stroke-width", "2");
   svgGroup.appendChild(body);
@@ -146,6 +152,85 @@ function drawChromosome(chr, start, end, geneSymbol) {
     `染色体 ${chr}（全長 ${formatNumber(length)} bp）の ${formatNumber(mid)} bp 付近に ${geneSymbol} が位置しています`;
 }
 
+function drawKaryotype(selectedChr) {
+  const group = document.getElementById("karyotype-group");
+  group.innerHTML = "";
+
+  const svgWidth = 1000;
+  const svgHeight = 700;
+  const topMargin = 30;
+  const bottomMargin = 50;
+  const maxHeight = svgHeight - topMargin - bottomMargin;
+  const maxLength = CHROMOSOME_LENGTHS[1];
+
+  const pairsPerRow = 6;
+  const pairCount = 23;
+  const rowCount = Math.ceil(pairCount / pairsPerRow);
+  const colWidth = svgWidth / pairsPerRow;
+  const pairGap = 20;
+  const chrWidth = 22;
+
+  const pairDefinitions = [
+    [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6],
+    [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 12],
+    [13, 13], [14, 14], [15, 15], [16, 16], [17, 17], [18, 18],
+    [19, 19], [20, 20], [21, 21], [22, 22], ["X", "Y"],
+  ];
+
+  const normalizedSelected = normalizeChromosome(selectedChr);
+
+  pairDefinitions.forEach((pair, index) => {
+    const row = Math.floor(index / pairsPerRow);
+    const col = index % pairsPerRow;
+    const pairCenterX = col * colWidth + colWidth / 2;
+    const pairTopY = topMargin;
+
+    pair.forEach((chr, side) => {
+      const length = getChromosomeLength(chr);
+      if (!length) return;
+
+      const height = (length / maxLength) * maxHeight;
+      const cx = pairCenterX + (side === 0 ? -1 : 1) * (chrWidth / 2 + pairGap / 2);
+      const isSelected = normalizeChromosome(chr) === normalizedSelected;
+      const fill = isSelected ? "url(#highlightGradient)" : "url(#chromosomeGradient)";
+      const stroke = isSelected ? "#991b1b" : "#2563eb";
+
+      const body = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      body.setAttribute("d", drawChromosomePath(cx, pairTopY, height, chrWidth));
+      body.setAttribute("fill", fill);
+      body.setAttribute("stroke", stroke);
+      body.setAttribute("stroke-width", isSelected ? "2.5" : "1.5");
+      group.appendChild(body);
+
+      // Centromere line
+      const centromere = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      const cy = pairTopY + height / 2;
+      centromere.setAttribute("x1", cx - chrWidth / 2 - 3);
+      centromere.setAttribute("y1", cy);
+      centromere.setAttribute("x2", cx + chrWidth / 2 + 3);
+      centromere.setAttribute("y2", cy);
+      centromere.setAttribute("stroke", isSelected ? "#7f1d1d" : "#1e40af");
+      centromere.setAttribute("stroke-width", "2");
+      group.appendChild(centromere);
+    });
+
+    // Pair label
+    const labelText = index === 22 ? "XY" : String(pair[0]);
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", pairCenterX);
+    label.setAttribute("y", svgHeight - 15);
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("font-size", "14");
+    label.setAttribute("fill", labelText === String(normalizedSelected) || (normalizedSelected === "Y" && labelText === "XY") ? "#991b1b" : "#1f2937");
+    label.setAttribute("font-weight", labelText === String(normalizedSelected) || (normalizedSelected === "Y" && labelText === "XY") ? "bold" : "normal");
+    label.textContent = labelText;
+    group.appendChild(label);
+  });
+
+  document.getElementById("karyotype-caption").textContent =
+    `ヒトカリオタイプ 46,XY。染色体 ${selectedChr} に位置する ${selectedChr === "Y" ? "Y" : "遺伝子"} を赤で強調しています。`;
+}
+
 async function fetchGeneInfo(query) {
   const url = `https://mygene.info/v3/query?q=${encodeURIComponent(query)}&fields=symbol,name,genomic_pos,chromosome,taxid&species=human`;
   const response = await fetch(url);
@@ -157,7 +242,6 @@ async function fetchGeneInfo(query) {
     throw new Error("該当する遺伝子が見つかりませんでした");
   }
 
-  // Prefer human results with genomic_pos
   const hit = data.hits.find((h) => h.taxid === 9606 && h.genomic_pos) || data.hits.find((h) => h.genomic_pos) || data.hits[0];
 
   let pos = hit.genomic_pos;
@@ -213,6 +297,7 @@ function displayResult(info) {
   document.getElementById("gene-name").textContent = info.name || "-";
   document.getElementById("strand").textContent = strandText(info.strand);
 
+  drawKaryotype(info.chromosome);
   drawChromosome(info.chromosome, info.start, info.end, info.symbol);
 
   document.getElementById("result").classList.remove("hidden");

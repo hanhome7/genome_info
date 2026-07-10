@@ -37,19 +37,41 @@
           <p><strong>鎖:</strong> <span id="strand"></span></p>
         </div>
 
-        <div class="diagram-wrapper">
-          <h3>染色体図</h3>
-          <svg id="chromosome-svg" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="chromosomeGradient" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stop-color="#4a90e2" />
-                <stop offset="50%" stop-color="#6ab7ff" />
-                <stop offset="100%" stop-color="#4a90e2" />
-              </linearGradient>
-            </defs>
-            <g id="chromosome-group"></g>
-          </svg>
-          <div id="diagram-caption" class="diagram-caption"></div>
+        <div class="diagrams">
+          <div class="diagram-wrapper">
+            <h3>カリオタイプ（46本 / 23対）</h3>
+            <svg id="karyotype-svg" viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chromosomeGradient" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stop-color="#4a90e2" />
+                  <stop offset="50%" stop-color="#6ab7ff" />
+                  <stop offset="100%" stop-color="#4a90e2" />
+                </linearGradient>
+                <linearGradient id="highlightGradient" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stop-color="#f87171" />
+                  <stop offset="50%" stop-color="#fca5a5" />
+                  <stop offset="100%" stop-color="#f87171" />
+                </linearGradient>
+              </defs>
+              <g id="karyotype-group"></g>
+            </svg>
+            <div id="karyotype-caption" class="diagram-caption"></div>
+          </div>
+
+          <div class="diagram-wrapper">
+            <h3>検出した染色体の詳細</h3>
+            <svg id="chromosome-svg" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chromosomeGradientDetail" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0%" stop-color="#4a90e2" />
+                  <stop offset="50%" stop-color="#6ab7ff" />
+                  <stop offset="100%" stop-color="#4a90e2" />
+                </linearGradient>
+              </defs>
+              <g id="chromosome-group"></g>
+            </svg>
+            <div id="diagram-caption" class="diagram-caption"></div>
+          </div>
         </div>
       </section>
     </main>
