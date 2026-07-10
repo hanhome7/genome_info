@@ -1,0 +1,18 @@
+[project]
+name = "genome_info"
+version = "0.1.0"
+description = "Web app to visualize gene locations on chromosomes"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx>=0.25.0",
+    "pytest>=7.4.0",
+]
+
+[tool.setuptools]
+py-modules = ["app"]

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genome Info - 遺伝子の染色体位置</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Genome Info</h1>
+      <p>遺伝子コードを入力すると、染色体の何番に位置するか図で表示します</p>
+    </header>
+
+    <main>
+      <form id="search-form" class="search-box">
+        <input
+          type="text"
+          id="gene-input"
+          placeholder="例: BRCA1, TP53, 672, ENSG00000012048"
+          aria-label="遺伝子コード"
+          autocomplete="off"
+        />
+        <button type="submit">検索</button>
+      </form>
+
+      <div id="loading" class="loading hidden">検索中…</div>
+      <div id="error" class="error hidden"></div>
+
+      <section id="result" class="result hidden">
+        <h2 id="gene-title"></h2>
+        <div class="summary">
+          <p><strong>染色体:</strong> <span id="chromosome-num"></span></p>
+          <p><strong>位置:</strong> <span id="position"></span></p>
+          <p><strong>遺伝子名:</strong> <span id="gene-name"></span></p>
+          <p><strong>鎖:</strong> <span id="strand"></span></p>
+        </div>
+
+        <div class="diagram-wrapper">
+          <h3>染色体図</h3>
+          <svg id="chromosome-svg" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="chromosomeGradient" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#4a90e2" />
+                <stop offset="50%" stop-color="#6ab7ff" />
+                <stop offset="100%" stop-color="#4a90e2" />
+              </linearGradient>
+            </defs>
+            <g id="chromosome-group"></g>
+          </svg>
+          <div id="diagram-caption" class="diagram-caption"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>データ提供: <a href="https://mygene.info" target="_blank" rel="noopener">MyGene.info</a></p>
+    </footer>
+  </div>
+
+  <script src="static/js/app.js"></script>
+</body>
+</html>
