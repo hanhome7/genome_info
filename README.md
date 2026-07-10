@@ -14,19 +14,19 @@
 ### ローカルで実行
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 9100
 ```
 
-ブラウザで `http://localhost:8000` を開きます。
+ブラウザで `http://localhost:9100` を開きます。
 
 ### FastAPI で実行
 
 ```bash
 pip install -r requirements.txt
-uvicorn app:app --reload
+uvicorn app:app --port 9100 --reload
 ```
 
-ブラウザで `http://localhost:8000` を開きます。
+ブラウザで `http://localhost:9100` を開きます。
 
 ## データソース
 
