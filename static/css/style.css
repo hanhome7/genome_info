@@ -133,6 +133,14 @@ header p {
   background: #fafafa;
 }
 
+#karyotype-svg {
+  aspect-ratio: 1000 / 700;
+}
+
+#chromosome-svg {
+  aspect-ratio: 400 / 600;
+}
+
 .diagram-caption {
   margin-top: 0.75rem;
   color: #4b5563;

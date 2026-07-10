@@ -291,9 +291,11 @@ function showLoading() {
 }
 
 function displayResult(info) {
+  const length = getChromosomeLength(info.chromosome);
   document.getElementById("gene-title").textContent = info.symbol;
   document.getElementById("chromosome-num").textContent = info.chromosome;
-  document.getElementById("position").textContent = `${formatNumber(info.start)} - ${formatNumber(info.end)} bp`;
+  document.getElementById("position").textContent =
+    `${formatNumber(info.start)} - ${formatNumber(info.end)} bp（大きさ: ${length ? formatNumber(length) : "不明"} bp）`;
   document.getElementById("gene-name").textContent = info.name || "-";
   document.getElementById("strand").textContent = strandText(info.strand);
 
