@@ -118,9 +118,19 @@ header p {
 
 .diagrams {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
+}
+
+.diagram-wrapper {
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .diagrams {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 #chromosome-svg,
@@ -134,7 +144,7 @@ header p {
 }
 
 #karyotype-svg {
-  aspect-ratio: 1000 / 700;
+  max-height: 460px;
 }
 
 #chromosome-svg {

@@ -153,23 +153,22 @@ function drawChromosome(chr, start, end, geneSymbol) {
 }
 
 function drawKaryotype(selectedChr) {
+  const svg = document.getElementById("karyotype-svg");
   const group = document.getElementById("karyotype-group");
   group.innerHTML = "";
 
   const svgWidth = 1000;
-  const svgHeight = 700;
-  const topMargin = 30;
-  const bottomMargin = 50;
-  const maxHeight = svgHeight - topMargin - bottomMargin;
-  const maxLength = CHROMOSOME_LENGTHS[1];
-
   const pairsPerRow = 6;
-  const pairCount = 23;
-  const rowCount = Math.ceil(pairCount / pairsPerRow);
-  const colWidth = svgWidth / pairsPerRow;
-  const pairGap = 20;
+  const topMargin = 24;
+  const bottomMargin = 24;
+  const rowHeight = 90;
+  const labelSpace = 28;
+  const rowGap = 20;
+  const rowTotal = rowHeight + labelSpace + rowGap;
   const chrWidth = 22;
+  const pairGap = 18;
 
+  const maxLength = CHROMOSOME_LENGTHS[1];
   const pairDefinitions = [
     [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6],
     [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 12],
@@ -177,37 +176,50 @@ function drawKaryotype(selectedChr) {
     [19, 19], [20, 20], [21, 21], [22, 22], ["X", "Y"],
   ];
 
+  const rowCount = Math.ceil(pairDefinitions.length / pairsPerRow);
+  const svgHeight = topMargin + rowCount * rowTotal + bottomMargin;
+  svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
+
+  const colWidth = svgWidth / pairsPerRow;
   const normalizedSelected = normalizeChromosome(selectedChr);
 
   pairDefinitions.forEach((pair, index) => {
     const row = Math.floor(index / pairsPerRow);
     const col = index % pairsPerRow;
     const pairCenterX = col * colWidth + colWidth / 2;
-    const pairTopY = topMargin;
+    const pairTopY = topMargin + row * rowTotal;
+
+    const isPairSelected =
+      (String(pair[0]) === String(normalizedSelected)) ||
+      (normalizedSelected === "Y" && String(pair[0]) === "X"); // 23番目は [X, Y]
 
     pair.forEach((chr, side) => {
       const length = getChromosomeLength(chr);
       if (!length) return;
 
-      const height = (length / maxLength) * maxHeight;
+      const height = Math.max(10, (length / maxLength) * rowHeight);
       const cx = pairCenterX + (side === 0 ? -1 : 1) * (chrWidth / 2 + pairGap / 2);
       const isSelected = normalizeChromosome(chr) === normalizedSelected;
       const fill = isSelected ? "url(#highlightGradient)" : "url(#chromosomeGradient)";
       const stroke = isSelected ? "#991b1b" : "#2563eb";
 
-      const body = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      body.setAttribute("d", drawChromosomePath(cx, pairTopY, height, chrWidth));
+      const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      body.setAttribute("x", cx - chrWidth / 2);
+      body.setAttribute("y", pairTopY);
+      body.setAttribute("width", chrWidth);
+      body.setAttribute("height", height);
+      body.setAttribute("rx", Math.min(5, height / 2));
+      body.setAttribute("ry", Math.min(5, chrWidth / 2));
       body.setAttribute("fill", fill);
       body.setAttribute("stroke", stroke);
-      body.setAttribute("stroke-width", isSelected ? "2.5" : "1.5");
+      body.setAttribute("stroke-width", isSelected ? "2" : "1.2");
       group.appendChild(body);
 
-      // Centromere line
       const centromere = document.createElementNS("http://www.w3.org/2000/svg", "line");
       const cy = pairTopY + height / 2;
-      centromere.setAttribute("x1", cx - chrWidth / 2 - 3);
+      centromere.setAttribute("x1", cx - chrWidth / 2 - 4);
       centromere.setAttribute("y1", cy);
-      centromere.setAttribute("x2", cx + chrWidth / 2 + 3);
+      centromere.setAttribute("x2", cx + chrWidth / 2 + 4);
       centromere.setAttribute("y2", cy);
       centromere.setAttribute("stroke", isSelected ? "#7f1d1d" : "#1e40af");
       centromere.setAttribute("stroke-width", "2");
@@ -218,17 +230,17 @@ function drawKaryotype(selectedChr) {
     const labelText = index === 22 ? "XY" : String(pair[0]);
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", pairCenterX);
-    label.setAttribute("y", svgHeight - 15);
+    label.setAttribute("y", pairTopY + rowHeight + 22);
     label.setAttribute("text-anchor", "middle");
-    label.setAttribute("font-size", "14");
-    label.setAttribute("fill", labelText === String(normalizedSelected) || (normalizedSelected === "Y" && labelText === "XY") ? "#991b1b" : "#1f2937");
-    label.setAttribute("font-weight", labelText === String(normalizedSelected) || (normalizedSelected === "Y" && labelText === "XY") ? "bold" : "normal");
+    label.setAttribute("font-size", "26");
+    label.setAttribute("fill", isPairSelected || (normalizedSelected === "Y" && labelText === "XY") ? "#991b1b" : "#1f2937");
+    label.setAttribute("font-weight", isPairSelected || (normalizedSelected === "Y" && labelText === "XY") ? "bold" : "normal");
     label.textContent = labelText;
     group.appendChild(label);
   });
 
   document.getElementById("karyotype-caption").textContent =
-    `ヒトカリオタイプ 46,XY。染色体 ${selectedChr} に位置する ${selectedChr === "Y" ? "Y" : "遺伝子"} を赤で強調しています。`;
+    `ヒトカリオタイプ 46,XY。23対（46本）を配置し、染色体 ${selectedChr} に位置する ${selectedChr === "Y" ? "Y" : "遺伝子"} を赤で強調しています。`;
 }
 
 async function fetchGeneInfo(query) {
